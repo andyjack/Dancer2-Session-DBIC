@@ -51,6 +51,7 @@ use strict;
 use DBIx::Class;
 use Try::Tiny;
 use Scalar::Util qw(blessed);
+use Module::Load qw();
 
 with 'Dancer2::Core::Role::SessionFactory';
 
@@ -286,12 +287,12 @@ sub _load_schema_class {
 
     if ($schema_class) {
         $schema_class =~ s/-/::/g;
-        eval { load $schema_class };
+        eval { Module::Load::load $schema_class };
         die "Could not load schema_class $schema_class: $@" if $@;
         $schema_object = $schema_class->connect(@conn_info);
     } else {
         my $dbic_loader = 'DBIx::Class::Schema::Loader';
-        eval { load $dbic_loader };
+        eval { Module::Load::load $dbic_loader };
         die "You must provide a schema_class option or install $dbic_loader."
             if $@;
         $dbic_loader->naming('v7');
